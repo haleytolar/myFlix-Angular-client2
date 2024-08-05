@@ -1,0 +1,9 @@
+{
+    "/api": {
+      "target": "https://mflixxx.netlify.app",
+      "secure": false,
+      "changeOrigin": true,
+      "logLevel": "debug"
+    }
+  }
+  
