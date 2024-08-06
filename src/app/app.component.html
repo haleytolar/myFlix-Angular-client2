@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+<div>
+    <ng-container *ngIf="router.url !== '/welcome'">
+      <app-navigation></app-navigation>
+    </ng-container>
+    <router-outlet></router-outlet>
+  </div>
+  

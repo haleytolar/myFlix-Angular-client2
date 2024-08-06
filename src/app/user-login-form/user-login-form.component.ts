@@ -10,7 +10,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-user-login-form',
   standalone: true,
@@ -26,21 +25,11 @@ import { Router } from '@angular/router';
   ]
 })
 export class UserLoginFormComponent implements OnInit {
-  /**
-   * User data input for login.
-   */
   @Input() userData = {
-    userName: '',
-    password: '',
+    Username: '',
+    Password: '',
   };
 
-  /**
-   * Constructs the UserLoginFormComponent.
-   * @param fetchApiData - The service for fetching API data.
-   * @param dialogRef - The reference to the dialog.
-   * @param snackBar - The service for showing snack bar notifications.
-   * @param router - The router service for navigation.
-   */
   constructor(
     public fetchApiData: FetchApiDataService,
     public dialogRef: MatDialogRef<UserLoginFormComponent>,
@@ -48,29 +37,20 @@ export class UserLoginFormComponent implements OnInit {
     private router: Router
   ) {}
 
-  /**
-   * Lifecycle hook called after component initialization.
-   */
   ngOnInit(): void {}
 
-  /**
-   * Logs in the user.
-   * If successful, saves user data and token in local storage, closes the dialog,
-   * shows a success notification, and navigates to the movies page.
-   * If login fails, shows a failure notification.
-   */
   loginUser(): void {
     this.fetchApiData.userLogin(this.userData).subscribe(
       (result) => {
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('token', result.token);
-        this.dialogRef.close(); // Will close modal on success
+        this.dialogRef.close();
         this.snackBar.open('User login successful', 'OK', {
           duration: 2000
         });
         this.router.navigate(['movies']);
       },
-      (error) => { // Changed parameter to 'error' for consistency
+      (error) => {
         this.snackBar.open('User login failed', 'OK', {
           duration: 2000
         });

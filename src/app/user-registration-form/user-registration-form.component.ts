@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';  // Import CommonModule for ngIf, ngFor etc.
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-registration-form',
@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';  // Import CommonModule for ngIf
   templateUrl: './user-registration-form.component.html',
   styleUrls: ['./user-registration-form.component.scss'],
   imports: [
-    CommonModule,  // Import CommonModule
+    CommonModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
