@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs';
+
+
 
 const apiUrl = 'https://movieflix-87lf.onrender.com';
 
@@ -40,12 +42,17 @@ export class FetchApiDataService {
     );
   }
 
-  // User login
   public userLogin(userDetails: any): Observable<any> {
     return this.http.post(`${apiUrl}/login`, userDetails, { headers: new HttpHeaders({'Content-Type': 'application/json'}) }).pipe(
+      tap((response: any) => {
+        // Save token and user details to localStorage
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user)); // Store user details
+      }),
       catchError(this.handleError)
     );
   }
+  
 
   public getAllMovies(): Observable<any> {
     return this.http.get(`${apiUrl}/movies`, { headers: this.getHeaders() }).pipe(
@@ -89,10 +96,20 @@ export class FetchApiDataService {
     );
   }
 
-  public addFavoriteMovie(username: string, movieId: string): Observable<any> {
-    return this.http.post(`${apiUrl}/users/${username}/movies/${movieId}`, {}, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  public addFavoriteMovie(movieId: string): Observable<any> {
+    const username = this.getUsername();
+    return this.http.post(`${apiUrl}/users/${username}/movies/${movieId}`, {}, { headers: this.getHeaders() })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  public deleteFavoriteMovie(movieId: string): Observable<any> {
+    const username = this.getUsername();
+    return this.http.delete(`${apiUrl}/users/${username}/movies/${movieId}`, { headers: this.getHeaders() })
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   public editUser(username: string, userDetails: any): Observable<any> {
@@ -107,9 +124,8 @@ export class FetchApiDataService {
     );
   }
 
-  public deleteFavoriteMovie(username: string, movieId: string): Observable<any> {
-    return this.http.delete(`${apiUrl}/users/${username}/movies/${movieId}`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  private getUsername(): string {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.username || '';
   }
 }

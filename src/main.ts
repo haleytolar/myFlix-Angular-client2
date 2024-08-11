@@ -1,4 +1,3 @@
-// src/main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
@@ -11,7 +10,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch()), // Ensure HttpClient is provided
     provideAnimations(),
     importProvidersFrom(MatSnackBarModule)
   ]

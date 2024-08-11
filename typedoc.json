@@ -1,11 +1,10 @@
 {
-    "entryPoints": ["src"],
-    "out": "docs",
-    "entryPointStrategy": "expand",
-    "exclude": ["**/*.spec.ts"],
-    "excludePrivate": true,
-    "excludeProtected": false,
-    "name": "My Angular App",
-    "theme": "default"
-  }
-  
+  "entryPoints": ["src"],
+  "out": "docs",
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.spec.ts"],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "name": "My Angular App",
+  "theme": "default"
+}
