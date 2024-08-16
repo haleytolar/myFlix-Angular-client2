@@ -36,7 +36,7 @@ export class MovieCardComponent implements OnInit {
     this.fetchApiData.getAllMovies().subscribe((resp: any) => {
       this.movies = resp.map((movie: any) => ({
         ...movie,
-        isFavorite: this.user.favoriteMovies?.includes(movie._id)
+        isFavorite: this.user.FavoriteMovies?.includes(movie._id)
       }));
     });
   }
@@ -55,45 +55,50 @@ export class MovieCardComponent implements OnInit {
 
   modifyFavoriteMovies(movie: any): void {
     this.user = JSON.parse(localStorage.getItem("user") || '{}');
-  
-    if (!this.user.username) {
+    
+    if (!this.user.Username) {
       console.error('User not logged in or missing username.');
       this.snackBar.open('Failed to update favorites: User not logged in.', 'OK', { duration: 2000 });
       return;
     }
   
-    const icon = document.getElementById(`${movie._id}-favorite-icon`);
+    const userId = this.user.Username;
   
-    if (this.user.favoriteMovies && this.user.favoriteMovies.includes(movie._id)) {
-      this.fetchApiData.deleteFavoriteMovie(movie._id).subscribe({
+    if (this.user.FavoriteMovies && this.user.FavoriteMovies.includes(movie._id)) {
+      this.fetchApiData.deleteFavoriteMovie(userId, movie._id).subscribe({
         next: () => {
-          icon?.setAttribute("fontIcon", "favorite_border");
-          this.user.favoriteMovies = this.user.favoriteMovies.filter((id: string) => id !== movie._id);
+          movie.isFavorite = false;
+          this.user.FavoriteMovies = this.user.FavoriteMovies.filter((id: string) => id !== movie._id);
           localStorage.setItem("user", JSON.stringify(this.user));
           this.snackBar.open('Removed from favorites', 'OK', { duration: 2000 });
+
+          this.getMovies();
         },
         error: (err: any) => {
-          console.error(err);
+          console.error('Failed to remove from favorites:', err);
           this.snackBar.open('Failed to remove from favorites', 'OK', { duration: 2000 });
         }
       });
     } else {
-      this.fetchApiData.addFavoriteMovie(movie._id).subscribe({
+      this.fetchApiData.addFavoriteMovie(userId, movie._id).subscribe({
         next: () => {
-          icon?.setAttribute("fontIcon", "favorite");
-          if (this.user.favoriteMovies) {
-            this.user.favoriteMovies.push(movie._id);
+          movie.isFavorite = true;
+          if (this.user.FavoriteMovies) {
+            this.user.FavoriteMovies.push(movie._id);
           } else {
-            this.user.favoriteMovies = [movie._id];
+            this.user.FavoriteMovies = [movie._id];
           }
           localStorage.setItem("user", JSON.stringify(this.user));
           this.snackBar.open('Added to favorites', 'OK', { duration: 2000 });
+
+          this.getMovies();
         },
         error: (err: any) => {
-          console.error(err);
+          console.error('Failed to add to favorites:', err);
           this.snackBar.open('Failed to add to favorites', 'OK', { duration: 2000 });
         }
       });
     }
   }
 }
+

@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FetchApiDataService } from '../fetch-api-data.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-profile',
@@ -19,7 +21,9 @@ import { FetchApiDataService } from '../fetch-api-data.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
+    MatIconModule,
+    MatSnackBarModule
   ]
 })
 export class UserProfileComponent implements OnInit {
@@ -28,42 +32,103 @@ export class UserProfileComponent implements OnInit {
 
   constructor(
     private fetchApiData: FetchApiDataService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.userData = JSON.parse(localStorage.getItem('user') || '{}');
+    this.loadUserData();
     this.getFavoriteMovies();
   }
 
-  getFavoriteMovies(): void {
-    this.fetchApiData.getFavoriteMovies(this.userData.username).subscribe((resp: any) => {
-      this.favoriteMovies = resp;
-    });
+  loadUserData(): void {
+    const storedUserData = localStorage.getItem('user');
+    if (storedUserData) {
+      this.userData = JSON.parse(storedUserData);
+    } else {
+      console.error('User data not found in localStorage.');
+      this.router.navigate(['/welcome']);
+    }
   }
 
-  deleteAccount(): void {
-    this.fetchApiData.deleteUser(this.userData.username).subscribe({
-      next: () => {
-        localStorage.clear();
-        this.router.navigate(['/welcome']);
+  getFavoriteMovies(): void {
+    this.fetchApiData.getAllMovies().subscribe((resp: any) => {
+      this.favoriteMovies = resp.filter((movie: any) =>
+        this.userData.FavoriteMovies?.includes(movie._id)
+      ).map((movie: any) => ({
+        ...movie,
+        isFavorite: true // Since these are all favorites
+      }));
+    }, (error: any) => {
+      console.error('Failed to load favorite movies:', error);
+    });
+  }
+  
+  
+
+  modifyFavoriteMovies(movie: any): void {
+    if (!this.userData.Username) {
+      console.error('User not logged in or missing username.');
+      this.snackBar.open('Failed to update favorites: User not logged in.', 'OK', { duration: 2000 });
+      return;
+    }
+
+    const userId = this.userData.Username;
+
+    if (this.userData.FavoriteMovies && this.userData.FavoriteMovies.includes(movie._id)) {
+      this.fetchApiData.deleteFavoriteMovie(userId, movie._id).subscribe({
+        next: () => {
+          movie.isFavorite = false;
+          this.userData.FavoriteMovies = this.userData.FavoriteMovies.filter((id: string) => id !== movie._id);
+          localStorage.setItem("user", JSON.stringify(this.userData));
+          this.snackBar.open('Removed from favorites', 'OK', { duration: 2000 });
+
+          console.log('Removed from favorites:', movie);
+
+          this.getFavoriteMovies();
+        },
+        error: (err: any) => {
+          console.error('Failed to remove from favorites:', err);
+          this.snackBar.open('Failed to remove from favorites', 'OK', { duration: 2000 });
+        }
+      });
+    } else {
+      this.fetchApiData.addFavoriteMovie(userId, movie._id).subscribe({
+        next: () => {
+          movie.isFavorite = true;
+          if (this.userData.FavoriteMovies) {
+            this.userData.FavoriteMovies.push(movie._id);
+          } else {
+            this.userData.FavoriteMovies = [movie._id];
+          }
+          localStorage.setItem("user", JSON.stringify(this.userData));
+          this.snackBar.open('Added to favorites', 'OK', { duration: 2000 });
+
+          console.log('Added to favorites:', movie);
+
+          this.getFavoriteMovies();
+        },
+        error: (err: any) => {
+          console.error('Failed to add to favorites:', err);
+          this.snackBar.open('Failed to add to favorites', 'OK', { duration: 2000 });
+        }
+      });
+    }
+  }
+
+  editUser(): void {
+    this.fetchApiData.editUser(this.userData.Username, this.userData).subscribe({
+      next: (updatedUser: any) => {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        this.router.navigate(['/movies']);
       },
       error: (err: any) => {
-        console.error(err);
+        console.error('Failed to update user:', err);
       }
     });
   }
 
-  editUser(): void {
-    this.fetchApiData.editUser(this.userData.username, this.userData).subscribe((updatedUser: any) => {
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      this.router.navigate(['/movies']);
-    });
-  }
-
-  // Add this method if it is indeed needed
   updateUser(): void {
-    // Implementation of updateUser
-    console.log('Update user method called');
+    this.editUser();
   }
 }

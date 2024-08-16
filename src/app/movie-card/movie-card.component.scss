@@ -68,3 +68,16 @@
   justify-content: space-between;
   padding: 10px; 
 }
+
+.favorite-icon {
+  font-size: 24px;
+  cursor: pointer;
+
+  &.favorite {
+    color: red;
+  }
+
+  &.not-favorite {
+    color: gray;
+  }
+}

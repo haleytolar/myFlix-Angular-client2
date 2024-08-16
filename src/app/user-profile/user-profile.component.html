@@ -1,26 +1,39 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>User Profile</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form #userForm="ngForm">
-      <mat-form-field appearance="fill">
-        <mat-label>Username</mat-label>
-        <input matInput [(ngModel)]="userData.username" name="username" required />
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="userData.email" name="email" required />
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Password</mat-label>
-        <input matInput [(ngModel)]="userData.password" name="password" type="password" required />
-      </mat-form-field>
-      <button mat-raised-button color="primary" (click)="updateUser()">Update</button>
-    </form>
-    <mat-card-subtitle>Favorite Movies:</mat-card-subtitle>
+<div class="profile-container">
+  <mat-card class="profile-info">
+    <mat-card-header>
+      <mat-card-title>User Profile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form #userForm="ngForm">
+        <mat-form-field appearance="fill">
+          <mat-label>Username</mat-label>
+          <input matInput [(ngModel)]="userData.Username" name="username" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="userData.Email" name="email" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Password</mat-label>
+          <input matInput [(ngModel)]="userData.Password" name="password" type="password" required />
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="editUser()">Update</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="scroll-container">
+    <div *ngIf="favoriteMovies.length === 0">No favorite movies</div>
     <div *ngFor="let movie of favoriteMovies">
-      <!-- Display favorite movies -->
+      <mat-card class="movie-card">
+        <mat-card-header>
+          <mat-card-title>{{ movie.Title }}</mat-card-title>
+          <button mat-icon-button (click)="modifyFavoriteMovies(movie)">
+            <mat-icon class="favorite-icon">{{ movie.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+        </mat-card-header>
+        <img mat-card-image [src]="movie.ImagePath" alt="{{ movie.Title }}" />
+      </mat-card>
     </div>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

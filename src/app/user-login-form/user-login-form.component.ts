@@ -40,21 +40,30 @@ export class UserLoginFormComponent implements OnInit {
   ngOnInit(): void {}
 
   loginUser(): void {
-    this.fetchApiData.userLogin(this.userData).subscribe(
-      (result) => {
-        localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('token', result.token);
-        this.dialogRef.close();
-        this.snackBar.open('User login successful', 'OK', {
-          duration: 2000
-        });
-        this.router.navigate(['movies']);
+    this.fetchApiData.userLogin(this.userData).subscribe({
+      next: (result) => {
+        console.log('Login result:', result); // Debugging line to check the structure of the result object
+        if (result && result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+          localStorage.setItem('token', result.token);
+          this.dialogRef.close();
+          this.snackBar.open(`Welcome ${result.user.Username}`, 'OK', { // Assuming `Username` is the correct property
+            duration: 2000
+          });
+          this.router.navigate(['movies']);
+        } else {
+          this.snackBar.open('User login failed: User data missing', 'OK', {
+            duration: 2000
+          });
+        }
       },
-      (error) => {
+      error: (error) => {
+        console.log('Login error:', error); // Debugging line to log the error
         this.snackBar.open('User login failed', 'OK', {
           duration: 2000
         });
       }
-    );
-  }
-}
+    });
+  }}
+  
+  
