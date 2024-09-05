@@ -117,7 +117,9 @@ export class UserProfileComponent implements OnInit {
   }
 
   editUser(): void {
-    this.fetchApiData.editUser(this.userData.Username, this.userData).subscribe({
+    const originalUsername = JSON.parse(localStorage.getItem('user') || '{}').Username;
+  
+    this.fetchApiData.editUser(originalUsername, this.userData).subscribe({
       next: (updatedUser: any) => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         this.router.navigate(['/movies']);
@@ -127,8 +129,9 @@ export class UserProfileComponent implements OnInit {
       }
     });
   }
-
+  
   updateUser(): void {
     this.editUser();
-  }
+  }  
+  
 }
